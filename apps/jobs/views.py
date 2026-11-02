@@ -1,20 +1,14 @@
-from django.shortcuts import render
-from django.http import JsonResponse
-from rest_framework.views import APIView
-from rest_framework.response import Response
 from rest_framework import status
+from rest_framework.response import Response
+from rest_framework.views import APIView
+
 from .serializers import JobSerializer
-
-from .models import Job
-
-def home(request):
-    return JsonResponse({"message": "Hello Zecpath Backend"})
+from .services import get_all_jobs
 
 
 class JobListView(APIView):
     def get(self, request):
-        jobs = Job.objects.all()
-        serializer = JobSerializer(jobs, many=True)
+        serializer = JobSerializer(get_all_jobs(), many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
 
@@ -25,10 +19,3 @@ class JobCreateView(APIView):
             serializer.save()
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
-
-class UserTestView(APIView):
-    def get(self, request):
-        return Response({"message": "User API working", "status": "ok"},
-                        status=status.HTTP_200_OK)
-# Create your views here.
