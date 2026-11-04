@@ -14,6 +14,7 @@ from pathlib import Path
 from decouple import Csv, config
 from datetime import timedelta
 
+
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -132,6 +133,8 @@ MEDIA_ROOT = BASE_DIR / "media"
 MEDIA_URL = "/media/"
 AUTH_USER_MODEL = "accounts.User"
 
+
+
 REST_FRAMEWORK = {
     "DEFAULT_AUTHENTICATION_CLASSES": (
         "rest_framework_simplejwt.authentication.JWTAuthentication",
@@ -142,10 +145,10 @@ REST_FRAMEWORK = {
 }
 
 SIMPLE_JWT = {
-    "ACCESS_TOKEN_LIFETIME": timedelta(minutes=15),    # token lifetime
+    "ACCESS_TOKEN_LIFETIME": timedelta(minutes=15),    
     "REFRESH_TOKEN_LIFETIME": timedelta(days=7),
-    "ROTATE_REFRESH_TOKENS": True,                     # new refresh token on each refresh
-    "BLACKLIST_AFTER_ROTATION": True,                  # old one becomes unusable
+    "ROTATE_REFRESH_TOKENS": True,                     
+    "BLACKLIST_AFTER_ROTATION": True,                  
     "UPDATE_LAST_LOGIN": True,
     "AUTH_HEADER_TYPES": ("Bearer",),
 }
