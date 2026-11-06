@@ -56,6 +56,7 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'apps.core.middleware.RoleAccessMiddleware',
 ]
 
 ROOT_URLCONF = 'zecpath_backend.urls'
@@ -142,6 +143,11 @@ REST_FRAMEWORK = {
     "DEFAULT_PERMISSION_CLASSES": (
         "rest_framework.permissions.IsAuthenticated",
     ),
+    "DEFAULT_THROTTLE_CLASSES": (
+        "rest_framework.throttling.AnonRateThrottle",
+        "rest_framework.throttling.UserRateThrottle",
+   ),
+    "DEFAULT_THROTTLE_RATES": {"anon": "60/min", "user": "200/min", "login": "5/min", "register": "10/hour"},
 }
 
 SIMPLE_JWT = {
@@ -152,3 +158,9 @@ SIMPLE_JWT = {
     "UPDATE_LAST_LOGIN": True,
     "AUTH_HEADER_TYPES": ("Bearer",),
 }
+LOGGING = {
+       "version": 1,
+       "disable_existing_loggers": False,
+       "handlers": {"console": {"class": "logging.StreamHandler"}},
+       "loggers": {"security": {"handlers": ["console"], "level": "WARNING"}},
+   }

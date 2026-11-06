@@ -5,12 +5,15 @@ from rest_framework.views import APIView
 from rest_framework_simplejwt.exceptions import TokenError
 from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework_simplejwt.views import TokenObtainPairView
+from rest_framework.throttling import ScopedRateThrottle
 
 from .serializers import LoginSerializer, RegisterSerializer, UserSerializer
 
 
 class RegisterView(APIView):
     permission_classes = [AllowAny]          # signup must be public
+    throttle_classes = [ScopedRateThrottle]
+    throttle_scope = "register"
 
     def post(self, request):
         serializer = RegisterSerializer(data=request.data)
@@ -18,10 +21,6 @@ class RegisterView(APIView):
             serializer.save()
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
-
-class LoginView(TokenObtainPairView):
-    serializer_class = LoginSerializer       # public by default in SimpleJWT
 
 
 class LogoutView(APIView):
@@ -38,6 +37,11 @@ class LogoutView(APIView):
         return Response({"detail": "Logged out."},
                         status=status.HTTP_205_RESET_CONTENT)
 
+
+class LoginView(TokenObtainPairView):
+    serializer_class = LoginSerializer
+    throttle_classes = [ScopedRateThrottle]
+    throttle_scope = "login"
 
 class MeView(APIView):
     def get(self, request):
