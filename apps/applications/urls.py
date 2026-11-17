@@ -7,4 +7,5 @@ urlpatterns = [
     path("candidate/applications/", views.MyApplicationsView.as_view(), name="my-applications"),
     path("employer/jobs/<int:job_id>/applicants/", views.JobApplicantsView.as_view(), name="job-applicants"),
     path("employer/applications/<int:pk>/status/", views.ApplicationStatusView.as_view(), name="application-status"),
+    path("employer/applications/<int:pk>/resume/", views.ApplicationResumeView.as_view(), name="application-resume"),
 ]

@@ -86,7 +86,7 @@ class RBACTests(APITestCase):
         self.login(self.cand2)
         r = self.client.get(reverse("my-applications"))
         self.assertEqual(r.status_code, 200)
-        self.assertEqual(len(r.data), 0)
+        self.assertEqual(r.data["count"], 0)
 
     def test_employer_sees_applicants_only_for_own_job(self):
         Application.objects.create(job=self.job, candidate=self.cand.candidate_profile)
@@ -94,7 +94,7 @@ class RBACTests(APITestCase):
         self.assertEqual(self.client.get(reverse("job-applicants", args=[self.job.pk])).status_code, 404)
         self.login(self.emp1)
         r = self.client.get(reverse("job-applicants", args=[self.job.pk]))
-        self.assertEqual(len(r.data), 1)
+        self.assertEqual(r.data["count"], 1)
 
     def test_employer_cannot_change_status_of_other_jobs_application(self):
         app = Application.objects.create(job=self.job, candidate=self.cand.candidate_profile)

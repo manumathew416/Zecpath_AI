@@ -12,6 +12,8 @@ from rest_framework_simplejwt.exceptions import AuthenticationFailed, InvalidTok
 
 from apps.accounts.models import Role
 
+from .responses import error_payload
+
 logger = logging.getLogger("security")
 
 # URL prefix -> the only role allowed inside it
@@ -37,7 +39,8 @@ class RoleAccessMiddleware:
 
             if result is None:
                 logger.warning("401 no/invalid token: %s %s", request.method, request.path)
-                return JsonResponse({"detail": "Authentication required."}, status=401)
+                return JsonResponse(
+                    error_payload(401, "Authentication required.", "not_authenticated"), status=401)
 
             user, _ = result
             if user.role != required:
@@ -46,7 +49,9 @@ class RoleAccessMiddleware:
                     user.email, user.role, request.method, request.path,
                 )
                 return JsonResponse(
-                    {"detail": f"This area is for {required} accounts only."}, status=403
+                    error_payload(403, f"This area is for {required} accounts only.",
+                                  "permission_denied"),
+                    status=403,
                 )
             request.role = user.role
 

@@ -40,6 +40,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'rest_framework',
+    'django_filters',
     'apps.core',
     'apps.accounts',
     'apps.jobs',
@@ -134,6 +135,9 @@ MEDIA_ROOT = BASE_DIR / "media"
 MEDIA_URL = "/media/"
 AUTH_USER_MODEL = "accounts.User"
 
+API_PAGE_SIZE = config("API_PAGE_SIZE", default=10, cast=int)
+API_MAX_PAGE_SIZE = config("API_MAX_PAGE_SIZE", default=100, cast=int)
+
 
 
 REST_FRAMEWORK = {
@@ -148,6 +152,19 @@ REST_FRAMEWORK = {
         "rest_framework.throttling.UserRateThrottle",
    ),
     "DEFAULT_THROTTLE_RATES": {"anon": "60/min", "user": "200/min", "login": "5/min", "register": "10/hour"},
+    "EXCEPTION_HANDLER": "apps.core.exceptions.custom_exception_handler",
+    "DEFAULT_RENDERER_CLASSES": ("apps.core.renderers.StandardJSONRenderer",
+    ),
+
+     "DEFAULT_PAGINATION_CLASS": "apps.core.pagination.StandardPagination",
+       "PAGE_SIZE": API_PAGE_SIZE,
+       "DEFAULT_FILTER_BACKENDS": (
+           "django_filters.rest_framework.DjangoFilterBackend",
+           "rest_framework.filters.SearchFilter",
+           "rest_framework.filters.OrderingFilter",
+       ),
+
+    
 }
 
 SIMPLE_JWT = {

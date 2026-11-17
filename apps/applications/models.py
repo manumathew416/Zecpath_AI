@@ -22,6 +22,13 @@ class Application(models.Model):
             models.UniqueConstraint(
                 fields=["job", "candidate"], name="unique_application")
         ]
+        # Day 14 - each index matches a real query
+        indexes = [
+            # employer's applicants: WHERE job_id=? AND status=?
+            models.Index(fields=["job", "status"], name="app_job_status_idx"),
+            # candidate's own list: WHERE candidate_id=? ORDER BY applied_at DESC
+            models.Index(fields=["candidate", "-applied_at", "-id"], name="app_cand_applied_idx"),
+        ]
 
     def __str__(self):
         return f"{self.candidate} -> {self.job.title}"
