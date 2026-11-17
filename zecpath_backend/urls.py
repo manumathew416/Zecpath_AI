@@ -20,7 +20,14 @@ from django.urls import path, include
 
 urlpatterns = [
     path("admin/", admin.site.urls),
+    path("api/", include("apps.accounts.urls")),
+    path("api/", include("apps.accounts.profile_urls")),
     path("api/", include("apps.jobs.urls")),
-     path("api/", include("apps.accounts.urls")),
+    path("api/", include("apps.applications.urls")),
     path("", include("apps.core.urls")),
+    path("api/", include("apps.accounts.resume_urls")),
 ]
+handler400 = "apps.core.errors.bad_request"
+handler403 = "apps.core.errors.permission_denied"
+handler404 = "apps.core.errors.not_found"
+handler500 = "apps.core.errors.server_error"

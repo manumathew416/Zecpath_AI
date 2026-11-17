@@ -1,3 +1,5 @@
+import re
+
 from django.contrib.auth.password_validation import validate_password
 from rest_framework import serializers
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
@@ -21,7 +23,13 @@ class RegisterSerializer(serializers.ModelSerializer):
         return value
 
     def validate_phone(self, value):
-        if value and User.objects.filter(phone=value).exists():
+        if not value:
+            return value
+        value = re.sub(r"[\s\-()]", "", value)             # allow 98765 43210 or 98765-43210
+        if not re.fullmatch(r"\+?[0-9]{7,15}", value):
+            raise serializers.ValidationError(
+                "Enter a valid phone number: 7 to 15 digits, with an optional + at the start.")
+        if User.objects.filter(phone=value).exists():
             raise serializers.ValidationError("This phone number is already registered.")
         return value
 
@@ -48,6 +56,11 @@ class LoginSerializer(TokenObtainPairSerializer):
         return token
 
     def validate(self, attrs):
+        # emails are stored in lower case, so Manu@x.com and manu@x.com are the same login
+        email = (attrs.get("email") or "").strip()
+        match = User.objects.filter(email__iexact=email).first()
+        if match:
+            attrs["email"] = match.email
         data = super().validate(attrs)
         data["user"] = UserSerializer(self.user).data
         return data

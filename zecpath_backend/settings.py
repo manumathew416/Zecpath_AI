@@ -14,6 +14,7 @@ from pathlib import Path
 from decouple import Csv, config
 from datetime import timedelta
 
+
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -39,6 +40,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'rest_framework',
+    'django_filters',
     'apps.core',
     'apps.accounts',
     'apps.jobs',
@@ -55,6 +57,7 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'apps.core.middleware.RoleAccessMiddleware',
 ]
 
 ROOT_URLCONF = 'zecpath_backend.urls'
@@ -132,6 +135,11 @@ MEDIA_ROOT = BASE_DIR / "media"
 MEDIA_URL = "/media/"
 AUTH_USER_MODEL = "accounts.User"
 
+API_PAGE_SIZE = config("API_PAGE_SIZE", default=10, cast=int)
+API_MAX_PAGE_SIZE = config("API_MAX_PAGE_SIZE", default=100, cast=int)
+
+
+
 REST_FRAMEWORK = {
     "DEFAULT_AUTHENTICATION_CLASSES": (
         "rest_framework_simplejwt.authentication.JWTAuthentication",
@@ -139,13 +147,37 @@ REST_FRAMEWORK = {
     "DEFAULT_PERMISSION_CLASSES": (
         "rest_framework.permissions.IsAuthenticated",
     ),
+    "DEFAULT_THROTTLE_CLASSES": (
+        "rest_framework.throttling.AnonRateThrottle",
+        "rest_framework.throttling.UserRateThrottle",
+   ),
+    "DEFAULT_THROTTLE_RATES": {"anon": "60/min", "user": "200/min", "login": "5/min", "register": "10/hour"},
+    "EXCEPTION_HANDLER": "apps.core.exceptions.custom_exception_handler",
+    "DEFAULT_RENDERER_CLASSES": ("apps.core.renderers.StandardJSONRenderer",
+    ),
+
+     "DEFAULT_PAGINATION_CLASS": "apps.core.pagination.StandardPagination",
+       "PAGE_SIZE": API_PAGE_SIZE,
+       "DEFAULT_FILTER_BACKENDS": (
+           "django_filters.rest_framework.DjangoFilterBackend",
+           "rest_framework.filters.SearchFilter",
+           "rest_framework.filters.OrderingFilter",
+       ),
+
+    
 }
 
 SIMPLE_JWT = {
-    "ACCESS_TOKEN_LIFETIME": timedelta(minutes=15),    # token lifetime
+    "ACCESS_TOKEN_LIFETIME": timedelta(minutes=15),    
     "REFRESH_TOKEN_LIFETIME": timedelta(days=7),
-    "ROTATE_REFRESH_TOKENS": True,                     # new refresh token on each refresh
-    "BLACKLIST_AFTER_ROTATION": True,                  # old one becomes unusable
+    "ROTATE_REFRESH_TOKENS": True,                     
+    "BLACKLIST_AFTER_ROTATION": True,                  
     "UPDATE_LAST_LOGIN": True,
     "AUTH_HEADER_TYPES": ("Bearer",),
 }
+LOGGING = {
+       "version": 1,
+       "disable_existing_loggers": False,
+       "handlers": {"console": {"class": "logging.StreamHandler"}},
+       "loggers": {"security": {"handlers": ["console"], "level": "WARNING"}},
+   }
